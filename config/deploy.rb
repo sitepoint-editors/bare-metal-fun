@@ -64,4 +64,16 @@ namespace :deploy do
     end
   end
 
+  desc "Link shared files"
+  task :symlink_config_files do
+    on roles(:web) do
+      symlinks = {
+        #"#{shared_path}/config/database.yml" => "#{release_path}/config/database.yml",
+        "#{shared_path}/config/secrets.yml" => "#{release_path}/config/secrets.yml"
+      }
+      execute symlinks.map{|from, to| "ln -nfs #{from} #{to}"}.join(" && ")
+    end
+  end
+
+  before 'deploy:assets:precompile', :symlink_config_files
 end
